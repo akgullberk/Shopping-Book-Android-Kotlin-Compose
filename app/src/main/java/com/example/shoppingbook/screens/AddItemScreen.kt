@@ -1,15 +1,22 @@
 package com.example.shoppingbook.screens
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,6 +31,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import coil.compose.rememberAsyncImagePainter
+import com.example.shoppingbook.R
 import com.example.shoppingbook.model.Item
 
 @Composable
@@ -41,6 +53,10 @@ fun AddItemScreen(saveFunction : () -> Unit){
         mutableStateOf("")
     }
 
+    var selectedImageUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+
     Box(modifier = Modifier
         .fillMaxSize()
         .background(color = MaterialTheme.colorScheme.primaryContainer),
@@ -48,6 +64,13 @@ fun AddItemScreen(saveFunction : () -> Unit){
 
     ){
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+            ImagePicker(onImageSelected =  { uri ->
+
+                selectedImageUri = uri
+            })
+
+
             TextField(value =itemName.value,
                 placeholder = {
                     Text("Enter Item Name")
@@ -110,7 +133,7 @@ fun AddItemScreen(saveFunction : () -> Unit){
 }
 
 @Composable
-fun ImagePicker(){
+fun ImagePicker(onImageSelected : (Uri?) -> Unit){
     var selectedImageUri by remember {
         mutableStateOf<Uri?>(null)
     }
@@ -134,8 +157,38 @@ fun ImagePicker(){
         }else{
             Toast.makeText(context,"Permission Denied",Toast.LENGTH_LONG).show()
         }
+    }
 
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        selectedImageUri.let { 
+            Image(painter = rememberAsyncImagePainter(model = it),
+                contentDescription = "Selected Image",
+                modifier = Modifier
+                    .size(300.dp, 200.dp)
+                    .padding(16.dp)
+                )
 
-        
+            onImageSelected(it)
+
+        } ?: Image(
+            painter = painterResource(id = R.drawable.selectimage),
+            contentDescription = "Select Image",
+            modifier = Modifier.fillMaxWidth()
+                .padding(16.dp)
+                .size(300.dp,200.dp)
+                .clickable {
+                    if(ContextCompat.checkSelfPermission(context,permission) == PackageManager.PERMISSION_GRANTED){
+                        galleryLauncher.launch("image/*")
+
+                    }else{
+                        permissionLauncher.launch(permission)
+                    }
+                }
+
+        )
     }
 }
