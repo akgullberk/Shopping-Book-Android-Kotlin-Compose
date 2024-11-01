@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.shoppingbook.model.Item
+import com.example.shoppingbook.screens.AddItemScreen
 import com.example.shoppingbook.ui.theme.ShoppingBookTheme
 
 class MainActivity : ComponentActivity() {
@@ -55,16 +56,12 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-
-
-
-
-
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     ShoppingBookTheme {
+        AddItemScreen {
 
+        }
     }
 }
