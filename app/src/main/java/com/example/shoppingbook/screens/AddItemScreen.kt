@@ -43,10 +43,10 @@ import com.example.shoppingbook.model.Item
 import java.io.ByteArrayOutputStream
 
 @Composable
-fun AddItemScreen(saveFunction : (item : Item) -> Unit){
+fun AddItemScreen(saveFunction : (item: Item) -> Unit) {
 
     val itemName = remember {
-        mutableStateOf(" ")
+        mutableStateOf("")
     }
 
     val storeName = remember {
@@ -67,22 +67,18 @@ fun AddItemScreen(saveFunction : (item : Item) -> Unit){
         .fillMaxSize()
         .background(color = MaterialTheme.colorScheme.primaryContainer),
         contentAlignment = Alignment.Center
+    ) {
 
-    ){
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-            ImagePicker(onImageSelected =  { uri ->
-
+            ImagePicker(onImageSelected = { uri->
                 selectedImageUri = uri
             })
 
-
-            TextField(value =itemName.value,
+            TextField(value=itemName.value,
                 placeholder = {
                     Text("Enter Item Name")
-
-                },
-                onValueChange = {
+                }, onValueChange = {
                     itemName.value = it
                 },
                 colors = TextFieldDefaults.colors(
@@ -90,16 +86,14 @@ fun AddItemScreen(saveFunction : (item : Item) -> Unit){
                     unfocusedContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
-
                 )
             )
 
-            TextField(value =storeName.value,
+
+            TextField(value=storeName.value,
                 placeholder = {
                     Text("Enter Store Name")
-
-                },
-                onValueChange = {
+                }, onValueChange = {
                     storeName.value = it
                 },
                 colors = TextFieldDefaults.colors(
@@ -107,16 +101,14 @@ fun AddItemScreen(saveFunction : (item : Item) -> Unit){
                     unfocusedContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
-
                 )
             )
 
-            TextField(value =price.value,
+
+            TextField(value=price.value,
                 placeholder = {
                     Text("Enter Price")
-
-                },
-                onValueChange = {
+                }, onValueChange = {
                     price.value = it
                 },
                 colors = TextFieldDefaults.colors(
@@ -124,49 +116,52 @@ fun AddItemScreen(saveFunction : (item : Item) -> Unit){
                     unfocusedContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
-
                 )
             )
 
             Button(onClick = {
 
                 val imageByteArray = selectedImageUri?.let {
-                    resizeImage(context = context,it, maxHeight = 600, maxWidth = 400)
+                    resizeImage(context = context, uri= it, maxWidth = 600, maxHeight = 400)
                 } ?: ByteArray(0)
 
-                val itemToInsert = Item(itemName = itemName.value, storeName = storeName.value, price = price.value, image = imageByteArray)
+                val itemToInsert = Item(itemName = itemName.value,
+                    storeName = storeName.value,
+                    price = price.value,
+                    image = imageByteArray
+                )
                 saveFunction(itemToInsert)
             }) {
-                Text(text = "Save")
+                Text("Save")
             }
         }
+
+
     }
 }
 
 @Composable
-fun ImagePicker(onImageSelected : (Uri?) -> Unit){
+fun ImagePicker(onImageSelected : (Uri?) -> Unit) {
     var selectedImageUri by remember {
         mutableStateOf<Uri?>(null)
     }
     val context = LocalContext.current
 
-    val permission = if(Build.VERSION.SDK_INT >=Build.VERSION_CODES.TIRAMISU){
+    val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         Manifest.permission.READ_MEDIA_IMAGES
-    }else{
+    } else {
         Manifest.permission.READ_EXTERNAL_STORAGE
     }
 
     val galleryLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
-
         selectedImageUri = uri
-        
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { granted ->
-        if(granted){
+        if (granted) {
             galleryLauncher.launch("image/*")
-        }else{
-            Toast.makeText(context,"Permission Denied",Toast.LENGTH_LONG).show()
+        } else {
+            Toast.makeText(context,"Permission denied",Toast.LENGTH_LONG).show()
         }
     }
 
@@ -175,13 +170,13 @@ fun ImagePicker(onImageSelected : (Uri?) -> Unit){
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        selectedImageUri.let { 
+        selectedImageUri?.let {
             Image(painter = rememberAsyncImagePainter(model = it),
                 contentDescription = "Selected Image",
                 modifier = Modifier
                     .size(300.dp, 200.dp)
                     .padding(16.dp)
-                )
+            )
 
             onImageSelected(it)
 
@@ -192,43 +187,42 @@ fun ImagePicker(onImageSelected : (Uri?) -> Unit){
                 .padding(16.dp)
                 .size(300.dp,200.dp)
                 .clickable {
-                    if(ContextCompat.checkSelfPermission(context,permission) == PackageManager.PERMISSION_GRANTED){
+                    if (ContextCompat.checkSelfPermission(context,permission) == PackageManager.PERMISSION_GRANTED) {
                         galleryLauncher.launch("image/*")
-
-                    }else{
+                    } else {
                         permissionLauncher.launch(permission)
                     }
                 }
-
         )
+
+
     }
+
 }
 
-fun resizeImage(context : Context, uri: Uri, maxWidth : Int, maxHeight : Int) : ByteArray?{
-    return try {
 
+fun resizeImage(context: Context, uri:Uri, maxWidth: Int, maxHeight: Int) : ByteArray? {
+    return try {
         val inputStream = context.contentResolver.openInputStream(uri)
         val originalBitmap = BitmapFactory.decodeStream(inputStream)
-
 
         val ratio = originalBitmap.width.toFloat() / originalBitmap.height.toFloat()
 
         var width = maxWidth
         var height = (width / ratio).toInt()
 
-        if(height > maxHeight){
+        if (height > maxHeight) {
             height = maxHeight
             width = (height * ratio).toInt()
         }
 
-        val resizeBitmap = Bitmap.createScaledBitmap(originalBitmap,width,height,false)
+        val resizedBitmap = Bitmap.createScaledBitmap(originalBitmap,width,height,false)
 
         val byteArrayOutputStream = ByteArrayOutputStream()
-        resizeBitmap.compress(Bitmap.CompressFormat.JPEG,100,byteArrayOutputStream)
+        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 100,byteArrayOutputStream)
         byteArrayOutputStream.toByteArray()
-    } catch (e : Exception){
+    } catch (e: Exception) {
         e.printStackTrace()
         null
     }
-
 }

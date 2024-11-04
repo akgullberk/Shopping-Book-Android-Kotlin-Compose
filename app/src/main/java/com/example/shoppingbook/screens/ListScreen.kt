@@ -20,16 +20,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHost
 import com.example.shoppingbook.model.Item
 
 @Composable
-fun ItemList(itemList : List<Item>){
+fun ItemList(itemList : List<Item>,navController : NavController){
     Scaffold(topBar = {},
 
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton ={
             FAB {
-
+                navController.navigate("add_item_screen")
             }
 
         } , content = {innerPadding ->
@@ -41,7 +43,7 @@ fun ItemList(itemList : List<Item>){
                     .background(color = MaterialTheme.colorScheme.primaryContainer)
             ) {
                 items(itemList){
-                    ItemRow(item = it)
+                    ItemRow(item = it,navController = navController)
                 }
             }
 
@@ -51,12 +53,12 @@ fun ItemList(itemList : List<Item>){
 }
 
 @Composable
-fun ItemRow(item : Item){
+fun ItemRow(item : Item, navController : NavController){
     Column(modifier = Modifier
         .fillMaxWidth()
         .background(color = MaterialTheme.colorScheme.primaryContainer)
         .clickable {
-
+            navController.navigate("details_screen/${item.id}")
         }
     ) {
         Text(text = item.itemName,

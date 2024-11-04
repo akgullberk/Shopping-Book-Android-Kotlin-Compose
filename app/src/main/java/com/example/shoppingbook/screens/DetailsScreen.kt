@@ -25,7 +25,7 @@ import com.example.shoppingbook.R
 import com.example.shoppingbook.model.Item
 
 @Composable
-fun DetailScreen(item : Item, deleteFunction: () -> Unit){
+fun DetailScreen(item : Item?, deleteFunction: () -> Unit){
     Box(modifier = Modifier
         .fillMaxSize()
         .background(color = MaterialTheme.colorScheme.primaryContainer),
@@ -33,7 +33,7 @@ fun DetailScreen(item : Item, deleteFunction: () -> Unit){
 
     ){
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = item.itemName,
+            Text(text = item?.itemName ?: "",
                 style = MaterialTheme.typography.displayLarge,
                 modifier = Modifier.padding(2.dp),
                 fontWeight = FontWeight.Bold,
@@ -41,25 +41,25 @@ fun DetailScreen(item : Item, deleteFunction: () -> Unit){
                 textAlign = TextAlign.Center
             )
 
-            val imageBitmap = item.image?.let { byteArray ->
-                BitmapFactory.decodeByteArray(byteArray,0,byteArray.size).asImageBitmap()
+            val imageBitmap = item?.image?.let { byteArray ->
+                BitmapFactory.decodeByteArray(byteArray,0,byteArray.size)?.asImageBitmap()
             }
 
 
-            Image(bitmap = imageBitmap ?: ImageBitmap.imageResource(id = R.drawable.selectimage), contentDescription = item.itemName,
+            Image(bitmap = imageBitmap ?: ImageBitmap.imageResource(id = R.drawable.selectimage), contentDescription = item?.itemName ?: "",
                 modifier = Modifier
                     .padding(16.dp)
                     .size(300.dp, 200.dp)
             )
 
-            Text(text = item.storeName ?:"",
+            Text(text = item?.storeName ?:"",
                 style = MaterialTheme.typography.displayMedium,
                 modifier = Modifier.padding(2.dp),
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 textAlign = TextAlign.Center
             )
-            Text(text = item.price ?:"",
+            Text(text = item?.price ?:"",
                 style = MaterialTheme.typography.displaySmall,
                 modifier = Modifier.padding(2.dp),
                 fontWeight = FontWeight.Bold,
